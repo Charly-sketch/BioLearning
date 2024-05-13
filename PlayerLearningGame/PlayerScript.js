@@ -2,18 +2,10 @@ var villainsColor = "#2F2F2F";
 var damselColor = "#2F2F2F";
 var IsReveal = false;
 var game;
+var heroAngle = 0;
 
   function reveal(){
-    if (IsReveal){
-      villainsColor = "#FF0000";
-      damselColor = "#4BFF32";
-    }
-    else {
-      villainsColor = "#2F2F2F";
-      damselColor = "#2F2F2F";
-    }
-    game.reset();
-    console.log("oui");
+    game.draw();
     var buttonText = IsReveal ? "Hide" : "Reveal";
     $('#reveal').text(buttonText);
   }
@@ -141,19 +133,56 @@ var game;
     }
 
     draw() {
-      var ctx = this.ctx;
-      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      // Draw Damsel
-      ctx.fillStyle = damselColor ;//"#2F2F2F" //"#4BFF32"; //vert
-      ctx.fillRect(this.damsel[0] * 100, this.damsel[1] * 100, 100, 100);
-      // Draw Hero
-      ctx.fillStyle = "#FFFFFF"; // //blanc
-      this.hero_rect = ctx.fillRect(this.hero[0] * 100, this.hero[1] * 100, 100, 100);
-      // Draw Villains
-      ctx.fillStyle = villainsColor; //"#2F2F2F" //"#FF0000"; //rouge
-      this.villains.forEach(function (item, index) {
-        ctx.fillRect(item[0] * 100, item[1] * 100, 100, 100);
-      });
+      if (!IsReveal){
+        var ctx = this.ctx;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Draw Damsel
+        ctx.fillStyle = "#2F2F2F" ;
+        ctx.fillRect(this.damsel[0] * 100, this.damsel[1] * 100, 100, 100);
+        // Draw Hero
+        ctx.fillStyle = "#FFFFFF"; // //blanc
+        this.hero_rect = ctx.fillRect(this.hero[0] * 100, this.hero[1] * 100, 100, 100);
+        // Draw Villains
+        ctx.fillStyle = "#2F2F2F";
+        this.villains.forEach(function (item, index) {
+          ctx.fillRect(item[0] * 100, item[1] * 100, 100, 100);
+        });
+      }
+      else {
+          var ctx = this.ctx;
+          ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          
+          // Draw Damsel
+          var self = this;
+          var damselImage = new Image();
+          damselImage.src = '../img/hospital.png';
+            
+          damselImage.onload = function() {
+              ctx.drawImage(damselImage, self.damsel[0] * 100, self.damsel[1] * 100, 100, 100);
+            };
+    
+          // Draw Hero
+          var heroImage = new Image();
+          heroImage.src = '../img/car.png';
+          var self = this;
+          heroImage.onload = function() {
+            ctx.save(); 
+            ctx.translate(self.hero[0] * 100 + 50, self.hero[1] * 100 + 50); 
+            ctx.rotate(heroAngle * Math.PI / 180);
+            ctx.drawImage(heroImage, -50, -50, 100, 100); 
+            ctx.restore(); 
+          };
+          
+          // Draw Villains
+          this.villains.forEach(function (villain) {
+            var villainsImage = new Image();
+            villainsImage.src = '../img/building.png';
+            
+            villainsImage.onload = function() {
+              ctx.drawImage(villainsImage, villain[0] * 100, villain[1] * 100, 100, 100);
+            };
+          });
+      }
     }
   }
 
@@ -223,15 +252,19 @@ var game;
         switch(key) {
             case 37: // Touche gauche
                 move = 'l';
+                heroAngle = 90;
                 break;
             case 38: // Touche haut
                 move = 'u';
+                heroAngle = 180;
                 break;
             case 39: // Touche droite
                 move = 'r';
+                heroAngle = -90;
                 break;
             case 40: // Touche bas
                 move = 'd';
+                heroAngle = 0;
                 break;
             default:
                 return; // Ne fait rien pour les autres touches
